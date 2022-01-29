@@ -5,11 +5,11 @@ const MainLayout = ({ children }) => {
   return (
     <Box>
       <Head>
-        <title>Eduease</title>
+        <title>Eduease | Modern Way To Learn</title>
         <meta name='description' content='Online classrooms' />
         <link rel='icon' href='/favicon.png' />
       </Head>
-      <main>{children}</main>
+      <div className='main'>{children}</div>
     </Box>
   )
 }

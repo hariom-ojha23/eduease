@@ -36,7 +36,7 @@ const PaperSurface = (props) => {
   const copyToClipboard = () => {
     const msg =
       title.split(' ')[0] === 'Host'
-        ? 'Host URl copied to clipboard'
+        ? 'Host URL copied to clipboard'
         : 'Attendee URL copied to clipboard'
     setMessage(msg)
     setVariant('info')
@@ -185,7 +185,7 @@ const Share = () => {
               ...breakpoints,
             }}
             variant='contained'
-            onClick={() => router.push('/join')}
+            onClick={() => router.push('/meeting/sfksgfkhghsgf')}
           >
             Start Meeting (as Host)
           </Button>
