@@ -1,7 +1,9 @@
-import '../styles/globals.css'
-import '@fontsource/lato/400.css'
+import React from 'react'
+import { ContextProvider } from '../components/SessionContext'
 import MainLayout from '../components/layouts/MainLayout'
 import { createTheme, ThemeProvider } from '@mui/material'
+import '../styles/globals.css'
+import '@fontsource/lato/400.css'
 
 const MyApp = ({ Component, pageProps }) => {
   const setTheme = createTheme({
@@ -12,7 +14,9 @@ const MyApp = ({ Component, pageProps }) => {
   return (
     <ThemeProvider theme={setTheme}>
       <MainLayout>
-        <Component {...pageProps} />
+        <ContextProvider>
+          <Component {...pageProps} />
+        </ContextProvider>
       </MainLayout>
     </ThemeProvider>
   )

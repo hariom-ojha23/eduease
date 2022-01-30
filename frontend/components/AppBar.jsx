@@ -9,13 +9,14 @@ import {
   SettingsRounded,
   ContentCopy,
 } from '@mui/icons-material'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import logo from '../public/logo.png'
 
 const ToolBar = styled(MuiToolbar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open, drawerWidth }) => ({
+})(({ theme, open, width }) => ({
   [theme.breakpoints.down('600')]: {
-    padding: '10px'
+    padding: '10px',
   },
   padding: 0,
   backgroundColor: 'transparent',
@@ -28,28 +29,90 @@ const ToolBar = styled(MuiToolbar, {
   }),
   [theme.breakpoints.up('lg')]: {
     ...(open && {
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['margin', 'width'], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginRight: drawerWidth,
+      width: `calc(100% - ${width}px)`,
+      transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
       }),
-  }
+      marginRight: width,
+    }),
+  },
 }))
 
 const AppBar = (props) => {
-  const { drawerOpen, drawerWidth, drawerToggle } = props
+  const {
+    drawerOpen,
+    drawerWidth,
+    drawerToggle,
+    setChatOpen,
+    setMemberOpen,
+    setSettingOpen,
+    chatOpen,
+    memberOpen,
+    settingOpen,
+  } = props
   const theme = useTheme()
 
+  const chatToggle = () => {
+    if (drawerOpen) {
+      if (chatOpen) {
+        drawerToggle()
+        return
+      }
+      setChatOpen(true)
+      setMemberOpen(false)
+      setSettingOpen(false)
+      return
+    }
+
+    setChatOpen(true)
+    setMemberOpen(false)
+    setSettingOpen(false)
+    drawerToggle()
+  }
+
+  const memberToggle = () => {
+    if (drawerOpen) {
+      if (memberOpen) {
+        drawerToggle()
+        return
+      }
+      setChatOpen(false)
+      setMemberOpen(true)
+      setSettingOpen(false)
+      return
+    }
+    setChatOpen(false)
+    setMemberOpen(true)
+    setSettingOpen(false)
+    drawerToggle()
+  }
+
+  const settingToggle = () => {
+    if (drawerOpen) {
+      if (settingOpen) {
+        drawerToggle()
+        return
+      }
+      setChatOpen(false)
+      setMemberOpen(false)
+      setSettingOpen(true)
+      return
+    }
+    setChatOpen(false)
+    setMemberOpen(false)
+    setSettingOpen(true)
+    drawerToggle()
+  }
+
   return (
-    <ToolBar position='fixed' open={drawerOpen} drawerWidth={drawerWidth}>
+    <ToolBar position='fixed' open={drawerOpen} width={drawerWidth}>
       <Box sx={{ mx: 2, mr: 3, display: { xs: 'none', md: 'flex' } }}>
         <Image src={logo} alt='eduease logo' height='65%' width='65%' />
       </Box>
 
       <Paper
-        elevation={5}
+        elevation={10}
         sx={{
           height: '100%',
           display: 'flex',
@@ -59,7 +122,7 @@ const AppBar = (props) => {
           flexGrow: '1',
           backgroundColor: '#073980',
           borderRadius: 3,
-          p: 0.7,
+          p: 1.2,
         }}
       >
         <Box
@@ -89,18 +152,20 @@ const AppBar = (props) => {
             flexItem
             sx={{ mx: 1.5 }}
           />
-          <IconButton>
-            <ContentCopy />
-          </IconButton>
+          <CopyToClipboard text={'Meeting link'}>
+            <IconButton>
+              <ContentCopy />
+            </IconButton>
+          </CopyToClipboard>
         </Box>
         <Box>
-          <IconButton sx={{ mr: 1.7 }} onClick={drawerToggle}>
+          <IconButton sx={{ mr: 1.7 }} onClick={chatToggle}>
             <ChatRounded />
           </IconButton>
-          <IconButton sx={{ mr: 1.7 }} onClick={drawerToggle}>
+          <IconButton sx={{ mr: 1.7 }} onClick={memberToggle}>
             <PeopleAltRounded />
           </IconButton>
-          <IconButton sx={{ mr: 2 }} onClick={drawerToggle}>
+          <IconButton sx={{ mr: 2 }} onClick={settingToggle}>
             <SettingsRounded />
           </IconButton>
         </Box>

@@ -7,6 +7,11 @@ require('dotenv').config()
 const app = express()
 const server = http.createServer(app)
 
+// middlewares
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cors())
+
 const io = new Server(server, {
   cors: {
     origin: '*',
@@ -14,15 +19,13 @@ const io = new Server(server, {
   },
 })
 
-// middlewares
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cors())
-
 io.on('connection', (socket) => {
-  socket.on('joinMeeting', (meetingId, user) => {
+  socket.on('joinMeeting', (meetingId) => {
     socket.join(meetingId)
-    socket.to(meetingId).broadcast.emit('userConnected', user)
+    socket.broadcast.to(meetingId).emit('userConnected', socket.id)
+    socket.on('disconnect', () => {
+      socket.to(meetingId).broadcast.emit('userDisconnected', userId)
+    })
   })
 })
 

@@ -1,17 +1,20 @@
 import React from 'react'
-import {
-  Paper,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material'
+import { Paper, Drawer } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { ContentCopy } from '@mui/icons-material'
+
+import Chat from './Chat'
+import Members from './Members'
+import Settings from './Settings'
 
 const Sidebar = (props) => {
-  const { drawerOpen, drawerToggle, drawerWidth } = props
+  const {
+    drawerOpen,
+    drawerToggle,
+    drawerWidth,
+    chatOpen,
+    memberOpen,
+    settingOpen,
+  } = props
 
   const theme = useTheme()
 
@@ -38,20 +41,20 @@ const Sidebar = (props) => {
     >
       <Paper
         elevation={5}
-        sx={{ m: 2, borderRadius: 3, flex: 1, backgroundColor: '#073980', [theme.breakpoints.down('lg')]: {
-          mt: 0
-        }, }}
+        sx={{
+          m: 2,
+          ml: 0,
+          borderRadius: 3,
+          flex: 1,
+          backgroundColor: '#073980',
+          [theme.breakpoints.down('lg')]: {
+            mt: 0,
+          },
+        }}
       >
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                <ContentCopy />
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
+        {chatOpen && <Chat />}
+        {memberOpen && <Members />}
+        {settingOpen && <Settings />}
       </Paper>
     </Drawer>
   )

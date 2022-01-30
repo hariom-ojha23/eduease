@@ -1,19 +1,19 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 
-
 const Main = styled('main', {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open, drawerWidth }) => ({
-  padding: '12px',
-  [theme.breakpoints.up('lg')]: { 
+})(({ theme, open, width }) => ({
+  padding: '13px 16px',
+  height: '100%',
+  [theme.breakpoints.up('lg')]: {
     ...(!open && {
       transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
       [theme.breakpoints.up('md')]: {
-        marginRight: -(drawerWidth - 20),
+        marginRight: -(width - 20),
         width: '100%',
       },
       [theme.breakpoints.down('md')]: {
@@ -31,7 +31,7 @@ const Main = styled('main', {
         duration: theme.transitions.duration.enteringScreen,
       }),
       marginRight: 0,
-      width: `calc(100% - ${drawerWidth}px)`,
+      width: `calc(100% - ${width}px)`,
       [theme.breakpoints.down('md')]: {
         marginRight: '20px',
       },
@@ -39,13 +39,13 @@ const Main = styled('main', {
         marginRight: '10px',
       },
     }),
-  }
+  },
 }))
 
 const MainWrapper = (props) => {
   const { children, drawerOpen, drawerWidth } = props
   return (
-    <Main open={drawerOpen} drawerWidth={drawerWidth}>
+    <Main open={drawerOpen} width={drawerWidth}>
       {children}
     </Main>
   )
