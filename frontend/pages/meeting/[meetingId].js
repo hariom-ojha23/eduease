@@ -1,5 +1,6 @@
-import React, { useState, useContext, useEffect } from 'react'
-import { Box, CssBaseline, Paper, Stack, Typography } from '@mui/material'
+import React, { useState, useContext, useEffect, useRef } from 'react'
+import { useRouter } from 'next/router'
+import { Box, CssBaseline, Paper, Typography } from '@mui/material'
 import {
   VideocamRounded,
   VideocamOffRounded,
@@ -13,6 +14,9 @@ import Sidebar from '../../components/Sidebar'
 import AppBar from '../../components/AppBar'
 import MainWrapper from '../../components/MainWrapper'
 import ControlIcon from '../../components/ControlIcon'
+import VideoGrid from '../../components/VideoGrid'
+
+import { SessionContext } from '../../components/SessionContext'
 
 const MeetingRoom = () => {
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -22,27 +26,42 @@ const MeetingRoom = () => {
   const [showVideo, setShowVideo] = useState(false)
   const [openMic, setOpenMic] = useState(false)
 
+  const router = useRouter()
+
+  const { userVideo, members, createSession } = useContext(SessionContext)
+  const { meetingId } = router.query
+
+  // useEffect to create a sessin on joining
+  useEffect(async () => {
+    console.log(meetingId)
+    if (meetingId === null) {
+      return
+    }
+    createSession(meetingId)
+  }, [meetingId])
+
+  // togglers to toggle drawer video and mic
   const drawerToggle = () => {
     setDrawerOpen(!drawerOpen)
   }
-
   const videoToggle = () => {
     setShowVideo(!showVideo)
     console.log('click')
   }
-
   const micToggle = () => {
     setOpenMic(!openMic)
   }
 
   const drawerWidth = 350
+  console.log(members)
+  console.log(userVideo)
 
   return (
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: 'inherit',
+        height: '100vh',
         justifyContent: 'center',
       }}
     >
@@ -61,18 +80,38 @@ const MeetingRoom = () => {
       />
 
       <MainWrapper drawerOpen={drawerOpen} drawerWidth={drawerWidth}>
-        <Box sx={{ pb: 0.7, height: '85%' }}>
-          <Paper
+        <Box sx={{ pb: 0.7, height: '88%' }}>
+          <Box
             elevation={5}
             sx={{
               borderRadius: '10px',
               height: '100%',
               padding: '10px',
               backgroundColor: 'transparent',
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
             }}
-          ></Paper>
+          >
+            <video
+              style={{
+                width: '50%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '15px',
+                backgroundColor: 'black',
+              }}
+              muted
+              playsInline
+              autoPlay={true}
+              ref={userVideo}
+            />
+            {members.map((peer, index) => (
+              <VideoGrid peer={peer} key={index} />
+            ))}
+          </Box>
         </Box>
-        <Box sx={{ pt: 0.7, height: '15%' }}>
+        <Box sx={{ pt: 0.7, height: '12%' }}>
           <Paper
             elevation={10}
             sx={{
@@ -88,17 +127,17 @@ const MeetingRoom = () => {
             <ControlIcon
               toggle={videoToggle}
               icon={showVideo ? <VideocamRounded /> : <VideocamOffRounded />}
-              info='Cam'
+              info=''
               bgColor={showVideo ? 'green' : 'red'}
             />
             <ControlIcon
               toggle={micToggle}
               icon={openMic ? <MicRounded /> : <MicOffRounded />}
-              info='Mic'
+              info=''
               bgColor={openMic ? 'green' : 'red'}
             />
-            <ControlIcon icon={<PresentToAllRounded />} info='Share' />
-            <ControlIcon icon={<CallEndRounded />} info='Leave' bgColor='red' />
+            <ControlIcon icon={<PresentToAllRounded />} info='' />
+            <ControlIcon icon={<CallEndRounded />} info='' bgColor='red' />
           </Paper>
         </Box>
       </MainWrapper>

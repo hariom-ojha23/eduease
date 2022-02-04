@@ -185,7 +185,7 @@ const Share = () => {
               ...breakpoints,
             }}
             variant='contained'
-            onClick={() => router.push('/meeting/lobby')}
+            onClick={() => router.push('/lobby')}
           >
             Start Meeting (as Host)
           </Button>

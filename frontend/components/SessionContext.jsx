@@ -1,30 +1,108 @@
-import React, { useState, useEffect, useRef, createContext } from 'react'
-import { io } from 'socket.io-client'
+import React, { useState, useRef, createContext } from 'react'
 import Peer from 'simple-peer'
-import { API_SERVICE } from '../config/URL'
+import { io } from 'socket.io-client'
 
 const SessionContext = createContext()
-const socket = io.connect('http://localhost:5000')
 
 const ContextProvider = ({ children }) => {
-  const myVideo = useRef()
-
-  const [userId, setUserId] = useState('')
   const [members, setMembers] = useState([])
+
+  const userVideo = useRef()
+  const checkVideo = useRef()
+  const socketRef = useRef()
+  const peersRef = useRef([])
+
+  socketRef.current = io.connect('http://localhost:5000')
 
   const getPermissions = async () => {
     await navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((currentStream) => {
-        myVideo.current.srcObject = currentStream
-        console.log(currentStream)
-        console.log('session-created')
+        if (checkVideo.current) {
+          checkVideo.current.srcObject = currentStream
+        }
       })
+      .catch((error) => console.log(error))
   }
 
-  const createSession = (meetingId) => {
-    socket.emit('joinMeeting', meetingId)
-    socket.on('userConnected', (id) => setUserId(id))
+  const createSession = async (meetingId) => {
+    await navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((currentStream) => {
+        if (userVideo.current) {
+          userVideo.current.srcObject = currentStream
+        }
+        let i = 0
+
+        socketRef.current.emit('joinMeeting', meetingId)
+        socketRef.current.on('meetingFull', (msg) => {
+          console.log(msg)
+        })
+        socketRef.current.on('allMembers', (users) => {
+          const peers = []
+          users.forEach((memberId) => {
+            console.log(++i)
+            const peer = createPeer(
+              memberId,
+              socketRef.current.id,
+              currentStream
+            )
+            peersRef.current.push({
+              peerId: memberId,
+              peer,
+            })
+            peers.push(peer)
+          })
+          setMembers(peers)
+        })
+
+        socketRef.current.on('userConnected', (payload) => {
+          console.log('userConnected')
+          const peer = addPeer(payload.signal, payload.callerId, currentStream)
+          peersRef.current.push({
+            peerId: payload.callerId,
+            peer,
+          })
+          setMembers((users) => [...users, peer])
+        })
+
+        socketRef.current.on('recieveReturnedSignal', (payload) => {
+          console.log('recieveReturnedSignal')
+          const user = peersRef.current.find((p) => p.peerId === payload.id)
+          user.peer.signal(payload.signal)
+        })
+      })
+      .catch((error) => console.log(error))
+  }
+
+  const createPeer = (userToCall, callerId, stream) => {
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      stream,
+    })
+
+    peer.on('signal', (signal) => {
+      socketRef.current.emit('sendingSignal', { userToCall, callerId, signal })
+    })
+
+    return peer
+  }
+
+  const addPeer = (comingSignal, callerId, stream) => {
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream,
+    })
+
+    peer.on('signal', (signal) => {
+      socketRef.current.emit('returningSignal', { signal, callerId })
+    })
+
+    peer.signal(comingSignal)
+
+    return peer
   }
 
   return (
@@ -32,8 +110,9 @@ const ContextProvider = ({ children }) => {
       value={{
         createSession,
         getPermissions,
-        userId,
-        myVideo,
+        checkVideo,
+        members,
+        userVideo,
       }}
     >
       {children}

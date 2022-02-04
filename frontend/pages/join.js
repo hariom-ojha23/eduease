@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useRouter } from 'next/router'
 import {
   Box,
@@ -10,6 +10,7 @@ import {
 import { useTheme } from '@emotion/react'
 
 import Logo from '../components/Logo'
+import { SessionContext } from '../components/SessionContext'
 
 const Text = (props) => {
   const { variant, component, children } = props
@@ -31,12 +32,14 @@ const Join = () => {
   const [meetingId, setMeetingId] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const { createSession } = useContext(SessionContext)
+
   const theme = useTheme()
   const router = useRouter()
 
   const startCall = () => {
     setLoading(true)
-    console.log(meetingId)
+    createSession(meetingId)
   }
 
   const createMeeting = () => {
